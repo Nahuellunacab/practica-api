@@ -8,11 +8,13 @@ const {
   deleteUser
 } = require('../controllers/users.controller');
 
-// Definición de rutas
-router.get('/', getUsers);
-router.get('/:id', getUserById);
-router.post('/', createUser);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+const { validateUserBody } = require('../middlewares/validateUser');
+
+// Rutas
+router.get('/', getUsers);             // GET /api/users
+router.get('/:id', getUserById);       // GET /api/users/:id
+router.post('/', validateUserBody, createUser);   // POST /api/users
+router.put('/:id', validateUserBody, updateUser); // PUT /api/users/:id
+router.delete('/:id', deleteUser);     // DELETE /api/users/:id
 
 module.exports = router;

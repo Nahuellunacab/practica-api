@@ -1,24 +1,24 @@
 const db = require('../db/db');
 
 // Obtener todos los usuarios
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   const sql = 'SELECT * FROM users';
   db.all(sql, [], (err, rows) => {
     if (err) {
-      return res.status(500).json({ error: 'Error al obtener usuarios' });
+      return next(err);
     }
     res.json(rows);
   });
 };
 
 // Obtener usuario por ID
-const getUserById = (req, res) => {
-  const id = parseInt(req.params.id);
+const getUserById = (req, res, next) => {
+  const id = parseInt(req.params.id, 10);
   const sql = 'SELECT * FROM users WHERE id = ?';
 
   db.get(sql, [id], (err, row) => {
     if (err) {
-      return res.status(500).json({ error: 'Error al obtener usuario' });
+      return next(err);
     }
 
     if (!row) {
@@ -30,18 +30,13 @@ const getUserById = (req, res) => {
 };
 
 // Crear usuario
-const createUser = (req, res) => {
-  const { name, age } = req.body;
-
-  if (!name || !age) {
-    return res.status(400).json({ error: 'name y age son obligatorios' });
-  }
-
+const createUser = (req, res, next) => {
+  const { name, age } = req.body; // ya viene validado por middleware
   const sql = 'INSERT INTO users (name, age) VALUES (?, ?)';
 
   db.run(sql, [name, age], function (err) {
     if (err) {
-      return res.status(500).json({ error: 'Error al crear usuario' });
+      return next(err);
     }
 
     res.status(201).json({
@@ -53,19 +48,15 @@ const createUser = (req, res) => {
 };
 
 // Actualizar usuario
-const updateUser = (req, res) => {
-  const id = parseInt(req.params.id);
-  const { name, age } = req.body;
-
-  if (!name || !age) {
-    return res.status(400).json({ error: 'name y age son obligatorios' });
-  }
+const updateUser = (req, res, next) => {
+  const id = parseInt(req.params.id, 10);
+  const { name, age } = req.body; // ya viene validado por middleware
 
   const sql = 'UPDATE users SET name = ?, age = ? WHERE id = ?';
 
   db.run(sql, [name, age, id], function (err) {
     if (err) {
-      return res.status(500).json({ error: 'Error al actualizar usuario' });
+      return next(err);
     }
 
     if (this.changes === 0) {
@@ -77,13 +68,13 @@ const updateUser = (req, res) => {
 };
 
 // Eliminar usuario
-const deleteUser = (req, res) => {
-  const id = parseInt(req.params.id);
+const deleteUser = (req, res, next) => {
+  const id = parseInt(req.params.id, 10);
   const sql = 'DELETE FROM users WHERE id = ?';
 
   db.run(sql, [id], function (err) {
     if (err) {
-      return res.status(500).json({ error: 'Error al eliminar usuario' });
+      return next(err);
     }
 
     if (this.changes === 0) {
